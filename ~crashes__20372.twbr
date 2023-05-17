@@ -8,8 +8,6 @@
     <AutoCreateAndUpdateDSDPhoneLayouts />
     <BasicButtonObject />
     <CollapsiblePane />
-    <IntuitiveSorting />
-    <IntuitiveSorting_SP2 />
     <MapboxVectorStylesAndLayers />
     <_.fcp.MarkAnimation.true...MarkAnimation />
     <_.fcp.ObjectModelEncapsulateLegacy.true...ObjectModelEncapsulateLegacy />
@@ -292,7 +290,7 @@
       <aliases enabled='yes' />
       <column datatype='string' name='[Aircraft]' role='dimension' type='nominal' />
       <column caption='Taxa mortalidade' datatype='real' name='[Calculation_771241462931398656]' role='measure' type='quantitative'>
-        <calculation class='tableau' formula='[PAX fatalities] / ([Crew on board] + [Pax on board])' />
+        <calculation class='tableau' formula='IF [Parameters].[Parâmetro Year] THEN [PAX fatalities] / ([Crew on board] + [Pax on board])&#13;&#10;ELSE [Total fatalities] / ([Crew on board] + [Pax on board])&#13;&#10;END' />
       </column>
       <column caption='Ranking Operador' datatype='integer' name='[Calculation_771241462982684674]' role='measure' type='quantitative'>
         <calculation class='tableau' formula='RANK_UNIQUE(COUNT([Operator]))'>
@@ -340,6 +338,9 @@
         </calculation>
       </column>
       <column datatype='string' name='[Region]' role='dimension' semantic-role='[Country].[Name]' type='nominal' />
+      <column caption='Taxa mortalidade 100' datatype='real' name='[Taxa mortalidade (cópia)_1433552083481944064]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='IF [Parameters].[Parâmetro Year] THEN ([PAX fatalities] / ([Crew on board] + [Pax on board])) * 100&#13;&#10;ELSE ([Total fatalities] / ([Crew on board] + [Pax on board])) * 100&#13;&#10;END' />
+      </column>
       <column aggregation='None' caption='decadas' datatype='integer' name='[Year (compartimento)]' role='dimension' type='ordinal'>
         <calculation class='bin' decimals='1' formula='[Year]' peg='0' size='10' />
       </column>
@@ -359,6 +360,9 @@
       <column-instance column='[Year (compartimento)]' derivation='None' name='[none:Year (compartimento):ok]' pivot='key' type='ordinal' />
       <column-instance column='[Ranking (cópia)_771241463004909580]' derivation='User' name='[usr:Ranking (cópia)_771241463004909580:qk:2]' pivot='key' type='quantitative'>
         <table-calc ordering-field='[federated.13ahx640xkange1eypzwl087xkpe].[Country]' ordering-type='Field' />
+      </column-instance>
+      <column-instance column='[Ranking (cópia)_771241463004909580]' derivation='User' name='[usr:Ranking (cópia)_771241463004909580:qk:3]' pivot='key' type='quantitative'>
+        <table-calc ordering-field='[federated.13ahx640xkange1eypzwl087xkpe].[Aircraft]' ordering-type='Field' />
       </column-instance>
       <column-instance column='[Ranking (cópia)_771241463004909580]' derivation='User' name='[usr:Ranking (cópia)_771241463004909580:qk]' pivot='key' type='quantitative'>
         <table-calc ordering-type='Rows' />
@@ -28626,6 +28630,9 @@
               <bucket>&quot;[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk:2]&quot;</bucket>
             </map>
             <map to='#f28e2b'>
+              <bucket>&quot;[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk:3]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
               <bucket>&quot;[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk]&quot;</bucket>
             </map>
           </encoding>
@@ -28860,6 +28867,15 @@
           </dictionary>
         </manual-sort>
       </default-sorts>
+      <datasource-dependencies datasource='Parameters'>
+        <column alias='Death per passengers' caption='Parâmetro Mortalidade' datatype='boolean' name='[Parâmetro Year]' param-domain-type='list' role='measure' type='nominal' value='true'>
+          <calculation class='tableau' formula='true' />
+          <aliases>
+            <alias key='false' value='Total death' />
+            <alias key='true' value='Death per passengers' />
+          </aliases>
+        </column>
+      </datasource-dependencies>
       <_.fcp.ObjectModelEncapsulateLegacy.true...object-graph>
         <objects>
           <object caption='crash.csv' id='crash.csv_B79F7D982D2E4BB3894BEB0C102D1182'>
@@ -28887,6 +28903,20 @@
         </objects>
       </_.fcp.ObjectModelEncapsulateLegacy.true...object-graph>
     </datasource>
+    <datasource hasconnection='false' inline='true' name='Parameters' version='18.1'>
+      <aliases enabled='yes' />
+      <column alias='Death per passengers' caption='Parâmetro Mortalidade' datatype='boolean' name='[Parâmetro Year]' param-domain-type='list' role='measure' type='nominal' value='true'>
+        <calculation class='tableau' formula='true' />
+        <aliases>
+          <alias key='false' value='Total death' />
+          <alias key='true' value='Death per passengers' />
+        </aliases>
+        <members>
+          <member alias='Death per passengers' value='true' />
+          <member alias='Total death' value='false' />
+        </members>
+      </column>
+    </datasource>
   </datasources>
   <mapsources>
     <mapsource name='Tableau' />
@@ -28894,13 +28924,13 @@
   <actions>
     <action caption='Filtro1' name='[Action1_ECB69A3E99A74960B9482978CBF46A9F]'>
       <activation auto-clear='true' type='on-select' />
-      <source dashboard='Geral' type='sheet'>
+      <source dashboard='General' type='sheet'>
         <exclude-sheet name='kpi biggest crash' />
       </source>
       <command command='tsc:tsl-filter'>
         <param name='exclude' value='kpi biggest crash' />
         <param name='special-fields' value='all' />
-        <param name='target' value='Geral' />
+        <param name='target' value='General' />
       </command>
     </action>
     <action caption='Filtro2' name='[Action2_DA7A7AE69D024A52B9EE1EB4308249E4]'>
@@ -28911,20 +28941,20 @@
         <param name='target' value='Last 3 decades' />
       </command>
     </action>
-    <action caption='Filtro2 1' name='[Action3_6E6257E9191A4DA1AC58AAB6E20DEC99]'>
+    <action caption='Filtro2 2' name='[Action4_23560DCF98F7419FB208535CDBD04E92]'>
+      <activation type='on-select' />
+      <source dashboard='Ratios' type='sheet' />
+      <command command='tsc:tsl-filter'>
+        <param name='special-fields' value='all' />
+        <param name='target' value='Ratios' />
+      </command>
+    </action>
+    <action caption='Filtro2 2 1' name='[Action4_724636ABF6EF4700B4097D38429DB238]'>
       <activation type='on-select' />
       <source dashboard='ML' type='sheet' />
       <command command='tsc:tsl-filter'>
         <param name='special-fields' value='all' />
         <param name='target' value='ML' />
-      </command>
-    </action>
-    <action caption='Filtro2 2' name='[Action4_23560DCF98F7419FB208535CDBD04E92]'>
-      <activation type='on-select' />
-      <source dashboard='razao' type='sheet' />
-      <command command='tsc:tsl-filter'>
-        <param name='special-fields' value='all' />
-        <param name='target' value='razao' />
       </command>
     </action>
   </actions>
@@ -29319,19 +29349,11 @@
             <datasource caption='crash' name='federated.13ahx640xkange1eypzwl087xkpe' />
           </datasources>
           <datasource-dependencies datasource='federated.13ahx640xkange1eypzwl087xkpe'>
-            <column datatype='string' name='[Aircraft]' role='dimension' type='nominal' />
             <column caption='Ranking Operador' datatype='integer' name='[Calculation_771241462982684674]' role='measure' type='quantitative'>
               <calculation class='tableau' formula='RANK_UNIQUE(COUNT([Operator]))'>
                 <table-calc ordering-type='Rows' />
               </calculation>
             </column>
-            <column datatype='string' name='[Country]' role='dimension' semantic-role='[Country].[ISO3166_2]' type='nominal'>
-              <semantic-values semantic-role='[Country].[Name]'>
-                <semantic-value key='&quot;Fiji Islands&quot;' value='&quot;Território Britânico do Oceano Índico&quot;' />
-                <semantic-value key='&quot;Guam Island&quot;' value='&quot;Territórios Insulares dos Estados Unidos&quot;' />
-              </semantic-values>
-            </column>
-            <column datatype='string' name='[Crash cause]' role='dimension' type='nominal' />
             <column datatype='string' name='[Operator]' role='dimension' type='nominal' />
             <column aggregation='None' caption='decadas' datatype='integer' name='[Year (compartimento)]' role='dimension' type='ordinal'>
               <calculation class='bin' decimals='1' formula='[Year]' peg='0' size='10' />
@@ -29339,58 +29361,27 @@
             <_.fcp.ObjectModelTableType.false...column caption='crash.csv' datatype='integer' name='[__tableau_internal_object_id__].[crash.csv_B79F7D982D2E4BB3894BEB0C102D1182]' role='measure' type='quantitative' />
             <column aggregation='Sum' datatype='integer' name='[Year]' role='dimension' type='ordinal' />
             <_.fcp.ObjectModelTableType.true...column caption='crash.csv' datatype='table' name='[__tableau_internal_object_id__].[crash.csv_B79F7D982D2E4BB3894BEB0C102D1182]' role='measure' type='quantitative' />
-            <column aggregation='None' caption='decadas (cópia)' datatype='integer' name='[decadas (cópia)_969399846336315392]' role='dimension' type='ordinal'>
-              <calculation class='bin' decimals='1' formula='[Year]' peg='0' size='10' />
-            </column>
             <column-instance column='[Operator]' derivation='None' name='[none:Operator:nk]' pivot='key' type='nominal' />
             <column-instance column='[Year (compartimento)]' derivation='None' name='[none:Year (compartimento):ok]' pivot='key' type='ordinal' />
             <column-instance column='[Calculation_771241462982684674]' derivation='User' name='[usr:Calculation_771241462982684674:qk:3]' pivot='key' type='quantitative'>
               <table-calc ordering-field='[federated.13ahx640xkange1eypzwl087xkpe].[Year (compartimento)]' ordering-type='Field' />
             </column-instance>
           </datasource-dependencies>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Aircraft,decadas)]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_ECB69A3E99A74960B9482978CBF46A9F]' user:ui-enumeration='all' user:ui-marker='enumerate'>
-              <groupfilter function='level-members' level='[Aircraft]' />
-              <groupfilter function='level-members' level='[Year (compartimento)]' />
-            </groupfilter>
-          </filter>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Country,decadas (cópia))]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_ECB69A3E99A74960B9482978CBF46A9F]' user:ui-enumeration='all' user:ui-marker='enumerate'>
-              <groupfilter function='level-members' level='[Country]' />
-              <groupfilter function='level-members' level='[decadas (cópia)_969399846336315392]' />
-            </groupfilter>
-          </filter>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Country,decadas)]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action4_23560DCF98F7419FB208535CDBD04E92]' user:ui-enumeration='all' user:ui-marker='enumerate'>
-              <groupfilter function='level-members' level='[Country]' />
-              <groupfilter function='level-members' level='[Year (compartimento)]' />
-            </groupfilter>
-          </filter>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Crash cause,decadas)]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_ECB69A3E99A74960B9482978CBF46A9F]' user:ui-enumeration='all' user:ui-marker='enumerate'>
-              <groupfilter function='level-members' level='[Crash cause]' />
-              <groupfilter function='level-members' level='[Year (compartimento)]' />
-            </groupfilter>
-          </filter>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (decadas)]'>
-            <groupfilter function='member' level='[Year (compartimento)]' member='201' user:ui-action-filter='[Action2_DA7A7AE69D024A52B9EE1EB4308249E4]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
-          </filter>
           <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Operator:nk]'>
             <groupfilter expression='COUNT([__tableau_internal_object_id__].[crash.csv_B79F7D982D2E4BB3894BEB0C102D1182]) &gt; 87' function='filter' user:ui-filter-by-field='true' user:ui-marker='filter-by'>
               <groupfilter function='level-members' level='[none:Operator:nk]' user:ui-manual-selection='true' user:ui-manual-selection-all-when-empty='true' user:ui-manual-selection-is-empty='true' user:ui-marker='enumerate' />
             </groupfilter>
           </filter>
           <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]'>
-            <groupfilter function='level-members' level='[none:Year (compartimento):ok]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='union' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='200' />
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='201' />
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='202' />
+            </groupfilter>
           </filter>
           <slices>
             <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Operator:nk]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Aircraft,decadas)]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Crash cause,decadas)]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Country,decadas (cópia))]</column>
             <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Country,decadas)]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (decadas)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -29588,17 +29579,10 @@
             <datasource caption='crash' name='federated.13ahx640xkange1eypzwl087xkpe' />
           </datasources>
           <datasource-dependencies datasource='federated.13ahx640xkange1eypzwl087xkpe'>
-            <column datatype='string' name='[Aircraft]' role='dimension' type='nominal' />
             <column caption='Ranking Operador' datatype='integer' name='[Calculation_771241462982684674]' role='measure' type='quantitative'>
               <calculation class='tableau' formula='RANK_UNIQUE(COUNT([Operator]))'>
                 <table-calc ordering-type='Rows' />
               </calculation>
-            </column>
-            <column datatype='string' name='[Country]' role='dimension' semantic-role='[Country].[ISO3166_2]' type='nominal'>
-              <semantic-values semantic-role='[Country].[Name]'>
-                <semantic-value key='&quot;Fiji Islands&quot;' value='&quot;Território Britânico do Oceano Índico&quot;' />
-                <semantic-value key='&quot;Guam Island&quot;' value='&quot;Territórios Insulares dos Estados Unidos&quot;' />
-              </semantic-values>
             </column>
             <column datatype='string' name='[Crash cause]' role='dimension' type='nominal' />
             <column datatype='string' name='[Operator]' role='dimension' type='nominal' />
@@ -29606,42 +29590,12 @@
               <calculation class='bin' decimals='1' formula='[Year]' peg='0' size='10' />
             </column>
             <column aggregation='Sum' datatype='integer' name='[Year]' role='dimension' type='ordinal' />
-            <column aggregation='None' caption='decadas (cópia)' datatype='integer' name='[decadas (cópia)_969399846336315392]' role='dimension' type='ordinal'>
-              <calculation class='bin' decimals='1' formula='[Year]' peg='0' size='10' />
-            </column>
             <column-instance column='[Crash cause]' derivation='None' name='[none:Crash cause:nk]' pivot='key' type='nominal' />
             <column-instance column='[Year (compartimento)]' derivation='None' name='[none:Year (compartimento):ok]' pivot='key' type='ordinal' />
             <column-instance column='[Calculation_771241462982684674]' derivation='User' name='[usr:Calculation_771241462982684674:qk:3]' pivot='key' type='quantitative'>
               <table-calc ordering-field='[federated.13ahx640xkange1eypzwl087xkpe].[Year (compartimento)]' ordering-type='Field' />
             </column-instance>
           </datasource-dependencies>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Aircraft,decadas)]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_ECB69A3E99A74960B9482978CBF46A9F]' user:ui-enumeration='all' user:ui-marker='enumerate'>
-              <groupfilter function='level-members' level='[Aircraft]' />
-              <groupfilter function='level-members' level='[Year (compartimento)]' />
-            </groupfilter>
-          </filter>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Country,decadas (cópia))]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_ECB69A3E99A74960B9482978CBF46A9F]' user:ui-enumeration='all' user:ui-marker='enumerate'>
-              <groupfilter function='level-members' level='[Country]' />
-              <groupfilter function='level-members' level='[decadas (cópia)_969399846336315392]' />
-            </groupfilter>
-          </filter>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Country,decadas)]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action4_23560DCF98F7419FB208535CDBD04E92]' user:ui-enumeration='all' user:ui-marker='enumerate'>
-              <groupfilter function='level-members' level='[Country]' />
-              <groupfilter function='level-members' level='[Year (compartimento)]' />
-            </groupfilter>
-          </filter>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Operator,decadas)]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_ECB69A3E99A74960B9482978CBF46A9F]' user:ui-enumeration='all' user:ui-marker='enumerate'>
-              <groupfilter function='level-members' level='[Operator]' />
-              <groupfilter function='level-members' level='[Year (compartimento)]' />
-            </groupfilter>
-          </filter>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (decadas)]'>
-            <groupfilter function='member' level='[Year (compartimento)]' member='201' user:ui-action-filter='[Action2_DA7A7AE69D024A52B9EE1EB4308249E4]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
-          </filter>
           <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Crash cause:nk]'>
             <groupfilter function='except' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
               <groupfilter function='level-members' level='[none:Crash cause:nk]' />
@@ -29649,16 +29603,15 @@
             </groupfilter>
           </filter>
           <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]'>
-            <groupfilter function='level-members' level='[none:Year (compartimento):ok]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='union' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='200' />
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='201' />
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='202' />
+            </groupfilter>
           </filter>
           <slices>
             <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Crash cause:nk]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Aircraft,decadas)]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Operator,decadas)]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Country,decadas (cópia))]</column>
             <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Country,decadas)]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (decadas)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -29683,13 +29636,6 @@
             <format attr='band-size' scope='cols' value='1' />
             <format attr='band-size' scope='rows' value='1' />
             <format attr='background-color' value='#000000' />
-          </style-rule>
-          <style-rule element='page-card-title'>
-            <format attr='title' value='Last 3 decades'>
-              <formatted-text>
-                <run fontcolor='#ffffff' fontname='Tableau Semibold' fontsize='12'>Last 3 decades</run>
-              </formatted-text>
-            </format>
           </style-rule>
         </style>
         <panes>
@@ -29858,8 +29804,8 @@
         </view>
         <style>
           <style-rule element='axis'>
-            <encoding attr='space' class='0' field='[federated.13ahx640xkange1eypzwl087xkpe].[Longitude (generated)]' field-type='quantitative' max='65437128.441082031' min='8130908.5042100288' projection='EPSG:3857' range-type='fixed' scope='cols' type='space' />
-            <encoding attr='space' class='0' field='[federated.13ahx640xkange1eypzwl087xkpe].[Latitude (generated)]' field-type='quantitative' max='12615236.946156034' min='-7432785.568931682' projection='EPSG:3857' range-type='fixed' scope='rows' type='space' />
+            <encoding attr='space' class='0' field='[federated.13ahx640xkange1eypzwl087xkpe].[Longitude (generated)]' field-type='quantitative' max='66947659.641342431' min='6099894.6431857357' projection='EPSG:3857' range-type='fixed' scope='cols' type='space' />
+            <encoding attr='space' class='0' field='[federated.13ahx640xkange1eypzwl087xkpe].[Latitude (generated)]' field-type='quantitative' max='12615236.946156034' min='-8671760.5912773758' projection='EPSG:3857' range-type='fixed' scope='rows' type='space' />
             <format attr='tick-color' field='[federated.13ahx640xkange1eypzwl087xkpe].[cnt:Year:qk]' value='#000000' />
           </style-rule>
           <style-rule element='header'>
@@ -30210,32 +30156,23 @@
             <_.fcp.ObjectModelTableType.true...column caption='crash.csv' datatype='table' name='[__tableau_internal_object_id__].[crash.csv_B79F7D982D2E4BB3894BEB0C102D1182]' role='measure' type='quantitative' />
             <column-instance column='[Aircraft]' derivation='None' name='[none:Aircraft:nk]' pivot='key' type='nominal' />
             <column-instance column='[Year (compartimento)]' derivation='None' name='[none:Year (compartimento):ok]' pivot='key' type='ordinal' />
+            <column-instance column='[Ranking (cópia)_771241463004909580]' derivation='User' name='[usr:Ranking (cópia)_771241463004909580:qk:3]' pivot='key' type='quantitative'>
+              <table-calc ordering-field='[federated.13ahx640xkange1eypzwl087xkpe].[Aircraft]' ordering-type='Field' />
+            </column-instance>
             <column-instance column='[Ranking (cópia)_771241463004909580]' derivation='User' name='[usr:Ranking (cópia)_771241463004909580:qk]' pivot='key' type='quantitative'>
               <table-calc ordering-type='Rows' />
             </column-instance>
           </datasource-dependencies>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Aircraft:nk]'>
-            <groupfilter count='1' end='top' function='end' units='records' user:ui-marker='end' user:ui-top-by-field='true'>
-              <groupfilter direction='DESC' expression='COUNT([Aircraft])' function='order' user:ui-marker='order'>
-                <groupfilter function='except' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
-                  <groupfilter function='level-members' level='[none:Aircraft:nk]' />
-                  <groupfilter function='empty-level' member='[none:Aircraft:nk]' />
-                </groupfilter>
-              </groupfilter>
-            </groupfilter>
-          </filter>
           <natural-sort column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Aircraft:nk]' direction='DESC' />
           <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]'>
             <groupfilter from='191' function='range' level='[none:Year (compartimento):ok]' to='202' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
           </filter>
-          <filter class='quantitative' column='[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk]' included-values='in-range'>
-            <min>1</min>
+          <filter class='quantitative' column='[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk:3]' included-values='in-range'>
             <max>1</max>
           </filter>
           <slices>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Aircraft:nk]</column>
             <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]</column>
+            <column>[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk:3]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -30497,7 +30434,6 @@
                 <semantic-value key='&quot;Guam Island&quot;' value='&quot;Territórios Insulares dos Estados Unidos&quot;' />
               </semantic-values>
             </column>
-            <column datatype='string' name='[Crash cause]' role='dimension' type='nominal' />
             <column caption='Ranking Crash' datatype='integer' name='[Ranking (cópia)_771241463004909580]' role='measure' type='quantitative'>
               <calculation class='tableau' formula='RANK_UNIQUE(COUNT([__tableau_internal_object_id__].[crash.csv_B79F7D982D2E4BB3894BEB0C102D1182]))'>
                 <table-calc ordering-type='Rows' />
@@ -30519,21 +30455,16 @@
               <table-calc ordering-type='Rows' />
             </column-instance>
           </datasource-dependencies>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Crash cause,decadas)]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action4_23560DCF98F7419FB208535CDBD04E92]' user:ui-enumeration='all' user:ui-marker='enumerate'>
-              <groupfilter function='level-members' level='[Crash cause]' />
-              <groupfilter function='level-members' level='[Year (compartimento)]' />
-            </groupfilter>
-          </filter>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (decadas)]'>
-            <groupfilter function='member' level='[Year (compartimento)]' member='201' user:ui-action-filter='[Action2_DA7A7AE69D024A52B9EE1EB4308249E4]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
-          </filter>
           <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Country:nk]'>
             <groupfilter function='level-members' level='[none:Country:nk]' />
           </filter>
           <natural-sort column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Country:nk]' direction='DESC' />
           <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]'>
-            <groupfilter function='level-members' level='[none:Year (compartimento):ok]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='union' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='200' />
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='201' />
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='202' />
+            </groupfilter>
           </filter>
           <filter class='quantitative' column='[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk:2]' included-values='in-range'>
             <min>1</min>
@@ -30543,8 +30474,6 @@
             <column>[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk:2]</column>
             <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Country:nk]</column>
             <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Crash cause,decadas)]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (decadas)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -30745,13 +30674,6 @@
             <datasource caption='crash' name='federated.13ahx640xkange1eypzwl087xkpe' />
           </datasources>
           <datasource-dependencies datasource='federated.13ahx640xkange1eypzwl087xkpe'>
-            <column datatype='string' name='[Country]' role='dimension' semantic-role='[Country].[ISO3166_2]' type='nominal'>
-              <semantic-values semantic-role='[Country].[Name]'>
-                <semantic-value key='&quot;Fiji Islands&quot;' value='&quot;Território Britânico do Oceano Índico&quot;' />
-                <semantic-value key='&quot;Guam Island&quot;' value='&quot;Territórios Insulares dos Estados Unidos&quot;' />
-              </semantic-values>
-            </column>
-            <column datatype='string' name='[Crash cause]' role='dimension' type='nominal' />
             <column aggregation='None' caption='decadas' datatype='integer' name='[Year (compartimento)]' role='dimension' type='ordinal'>
               <calculation class='bin' decimals='1' formula='[Year]' peg='0' size='10' />
             </column>
@@ -30761,25 +30683,15 @@
             <_.fcp.ObjectModelTableType.true...column caption='crash.csv' datatype='table' name='[__tableau_internal_object_id__].[crash.csv_B79F7D982D2E4BB3894BEB0C102D1182]' role='measure' type='quantitative' />
             <column-instance column='[Year (compartimento)]' derivation='None' name='[none:Year (compartimento):ok]' pivot='key' type='ordinal' />
           </datasource-dependencies>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Country,decadas)]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action4_23560DCF98F7419FB208535CDBD04E92]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
-              <groupfilter function='member' level='[Country]' member='&quot;Ukraine&quot;' />
-              <groupfilter function='member' level='[Year (compartimento)]' member='201' />
-            </groupfilter>
-          </filter>
-          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[Action (Crash cause,decadas)]'>
-            <groupfilter function='crossjoin' user:ui-action-filter='[Action4_23560DCF98F7419FB208535CDBD04E92]' user:ui-enumeration='all' user:ui-marker='enumerate'>
-              <groupfilter function='level-members' level='[Crash cause]' />
-              <groupfilter function='level-members' level='[Year (compartimento)]' />
-            </groupfilter>
-          </filter>
           <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]'>
-            <groupfilter function='level-members' level='[none:Year (compartimento):ok]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='union' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='200' />
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='201' />
+              <groupfilter function='member' level='[none:Year (compartimento):ok]' member='202' />
+            </groupfilter>
           </filter>
           <slices>
             <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Crash cause,decadas)]</column>
-            <column>[federated.13ahx640xkange1eypzwl087xkpe].[Action (Country,decadas)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -30854,20 +30766,34 @@
         <view>
           <datasources>
             <datasource caption='crash' name='federated.13ahx640xkange1eypzwl087xkpe' />
+            <datasource caption='Parâmetros' name='Parameters' />
           </datasources>
+          <datasource-dependencies datasource='Parameters'>
+            <column alias='Death per passengers' caption='Parâmetro Mortalidade' datatype='boolean' name='[Parâmetro Year]' param-domain-type='list' role='measure' type='nominal' value='true'>
+              <calculation class='tableau' formula='true' />
+              <aliases>
+                <alias key='false' value='Total death' />
+                <alias key='true' value='Death per passengers' />
+              </aliases>
+            </column>
+          </datasource-dependencies>
           <datasource-dependencies datasource='federated.13ahx640xkange1eypzwl087xkpe'>
             <column datatype='string' name='[Aircraft]' role='dimension' type='nominal' />
             <column caption='Taxa mortalidade' datatype='real' name='[Calculation_771241462931398656]' role='measure' type='quantitative'>
-              <calculation class='tableau' formula='[PAX fatalities] / ([Crew on board] + [Pax on board])' />
+              <calculation class='tableau' formula='IF [Parameters].[Parâmetro Year] THEN [PAX fatalities] / ([Crew on board] + [Pax on board])&#13;&#10;ELSE [Total fatalities] / ([Crew on board] + [Pax on board])&#13;&#10;END' />
             </column>
             <column datatype='real' name='[Crew on board]' role='measure' type='quantitative' />
             <column datatype='real' name='[PAX fatalities]' role='measure' type='quantitative' />
             <column datatype='real' name='[Pax on board]' role='measure' type='quantitative' />
+            <column caption='Taxa mortalidade 100' datatype='real' name='[Taxa mortalidade (cópia)_1433552083481944064]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='IF [Parameters].[Parâmetro Year] THEN ([PAX fatalities] / ([Crew on board] + [Pax on board])) * 100&#13;&#10;ELSE ([Total fatalities] / ([Crew on board] + [Pax on board])) * 100&#13;&#10;END' />
+            </column>
+            <column datatype='integer' name='[Total fatalities]' role='measure' type='quantitative' />
             <column aggregation='None' caption='decadas' datatype='integer' name='[Year (compartimento)]' role='dimension' type='ordinal'>
               <calculation class='bin' decimals='1' formula='[Year]' peg='0' size='10' />
             </column>
             <column aggregation='Sum' datatype='integer' name='[Year]' role='dimension' type='ordinal' />
-            <column-instance column='[Calculation_771241462931398656]' derivation='Avg' name='[avg:Calculation_771241462931398656:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Taxa mortalidade (cópia)_1433552083481944064]' derivation='Avg' name='[avg:Taxa mortalidade (cópia)_1433552083481944064:qk]' pivot='key' type='quantitative' />
             <column-instance column='[Aircraft]' derivation='None' name='[none:Aircraft:nk]' pivot='key' type='nominal' />
             <column-instance column='[Year (compartimento)]' derivation='None' name='[none:Year (compartimento):ok]' pivot='key' type='ordinal' />
           </datasource-dependencies>
@@ -30878,11 +30804,12 @@
               </groupfilter>
             </groupfilter>
           </filter>
-          <shelf-sorts>
-            <shelf-sort-v2 dimension-to-sort='[federated.13ahx640xkange1eypzwl087xkpe].[none:Aircraft:nk]' direction='ASC' is-on-innermost-dimension='true' measure-to-sort-by='[federated.13ahx640xkange1eypzwl087xkpe].[avg:Calculation_771241462931398656:qk]' shelf='columns' />
-          </shelf-sorts>
+          <filter class='categorical' column='[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]'>
+            <groupfilter from='191' function='range' level='[none:Year (compartimento):ok]' to='202' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
           <slices>
             <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Aircraft:nk]</column>
+            <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -30896,20 +30823,17 @@
             <view>
               <breakdown value='auto' />
             </view>
-            <mark class='Bar' />
+            <mark class='Automatic' />
           </pane>
         </panes>
-        <rows>[federated.13ahx640xkange1eypzwl087xkpe].[avg:Calculation_771241462931398656:qk]</rows>
+        <rows>[federated.13ahx640xkange1eypzwl087xkpe].[avg:Taxa mortalidade (cópia)_1433552083481944064:qk]</rows>
         <cols>[federated.13ahx640xkange1eypzwl087xkpe].[none:Aircraft:nk]</cols>
-        <pages>
-          <column>[federated.13ahx640xkange1eypzwl087xkpe].[none:Year (compartimento):ok]</column>
-        </pages>
       </table>
       <simple-id uuid='{E667CD6D-EA32-4A53-A1A4-9BBE1874A054}' />
     </worksheet>
   </worksheets>
   <dashboards>
-    <dashboard _.fcp.AccessibleZoneTabOrder.true...enable-sort-zone-taborder='true' name='Geral'>
+    <dashboard _.fcp.AccessibleZoneTabOrder.true...enable-sort-zone-taborder='true' name='General'>
       <style>
         <style-rule element='table'>
           <format attr='background-color' value='#000000' />
@@ -30933,7 +30857,9 @@
       <zones>
         <zone h='100000' id='19' type-v2='layout-basic' w='100000' x='0' y='0'>
           <zone h='99000' id='29' param='horz' type-v2='layout-flow' w='99000' x='500' y='500'>
-            <zone h='99000' id='20' type-v2='layout-basic' w='99000' x='500' y='500' />
+            <zone h='99000' id='20' type-v2='layout-basic' w='99000' x='500' y='500'>
+              <zone h='99000' id='37' param='horz' type-v2='layout-flow' w='99000' x='500' y='500' />
+            </zone>
           </zone>
           <zone-style>
             <format attr='border-color' value='#000000' />
@@ -31215,7 +31141,7 @@
         <zone h='10438' id='5' is-centered='0' is-scaled='1' param='C:/Users/pedro/Downloads/aviao.jpg' type-v2='bitmap' w='18875' x='36063' y='-1063' />
         <zone h='5188' id='12' name='kpi crash x time DEC' w='3938' x='9750' y='12500' />
         <zone h='29688' id='13' name='Crashes couses DEC' w='24250' x='125' y='22500' />
-        <zone count='1' h='6625' id='15' looped='1' name='Crashes couses DEC' name1='Crashes X Operators DEC' synchronized='1' type-v2='currpage' w='12500' x='53375' y='2063' />
+        <zone count='3' h='6625' id='15' looped='1' name='Crashes couses DEC' name1='Crashes X Operators DEC' name2='kpi crash x time DEC' name3='kpi country DEC' synchronized='1' type-v2='currpage' w='12500' x='53375' y='2063' />
         <zone h='30438' id='18' name='Crashes X Operators DEC' w='23563' x='43500' y='22250' />
         <zone forceUpdate='true' h='1875' id='19' type-v2='text' w='11688' x='6688' y='10250'>
           <formatted-text>
@@ -31235,6 +31161,8 @@
             <run fontalignment='1' fontcolor='#ffffff' fontname='Unispace' fontsize='16'>Play</run>
           </formatted-text>
         </zone>
+        <zone h='12000' id='29' name='kpi country DEC' w='14625' x='28375' y='10813' />
+        <zone h='2375' id='30' name='kpi country DEC' pane-specification-id='1' param='[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk]' type-v2='size' w='8750' x='51563' y='10813' />
       </zones>
       <devicelayouts>
         <devicelayout auto-generated='true' name='Phone'>
@@ -31349,7 +31277,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone count='1' h='6625' id='15' looped='1' name='Crashes couses DEC' name1='Crashes X Operators DEC' synchronized='1' type-v2='currpage' w='12500' x='53375' y='2063'>
+                <zone count='3' h='6625' id='15' looped='1' name='Crashes couses DEC' name1='Crashes X Operators DEC' name2='kpi crash x time DEC' name3='kpi country DEC' synchronized='1' type-v2='currpage' w='12500' x='53375' y='2063'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -31379,6 +31307,17 @@
       </style>
       <size maxheight='1600' maxwidth='1600' minheight='1600' minwidth='1600' sizing-mode='fixed' />
       <zones>
+        <zone h='100000' id='20' type-v2='layout-basic' w='100000' x='0' y='0'>
+          <zone h='99000' id='23' param='horz' type-v2='layout-flow' w='99000' x='500' y='500'>
+            <zone h='99000' id='21' type-v2='layout-basic' w='99000' x='500' y='500' />
+          </zone>
+          <zone-style>
+            <format attr='border-color' value='#000000' />
+            <format attr='border-style' value='none' />
+            <format attr='border-width' value='0' />
+            <format attr='margin' value='8' />
+          </zone-style>
+        </zone>
         <zone forceUpdate='true' h='6813' id='3' type-v2='text' w='22250' x='0' y='625'>
           <formatted-text>
             <run fontalignment='1' fontcolor='#ffffff' fontname='Showcard Gothic' fontsize='22'>Can data take away my fear of flying?</run>
@@ -31390,23 +31329,13 @@
           </formatted-text>
         </zone>
         <zone h='10438' id='5' is-centered='0' is-scaled='1' param='C:/Users/pedro/Downloads/aviao.jpg' type-v2='bitmap' w='18875' x='37313' y='-875' />
-        <zone h='4500' id='12' name='kpi crash x time DEC' w='3938' x='2375' y='12938' />
-        <zone h='29688' id='13' name='Crashes couses DEC' w='30313' x='125' y='22500' />
-        <zone count='2' h='6625' id='15' looped='1' name='Crashes couses DEC' name1='kpi country DEC' name2='Crashes X Operators DEC' synchronized='1' type-v2='currpage' w='12500' x='53375' y='2063' />
-        <zone h='8625' id='16' name='kpi country DEC' w='13500' x='12875' y='10125' />
-        <zone h='30438' id='18' name='Crashes X Operators DEC' w='25563' x='41500' y='22250' />
-        <zone h='1875' id='19' type-v2='text' w='11688' x='-63' y='10375'>
-          <formatted-text>
-            <run fontcolor='#ffffff' fontname='Tableau Semibold' fontsize='12'>Total number of crashes</run>
-          </formatted-text>
-        </zone>
       </zones>
       <devicelayouts>
         <devicelayout auto-generated='true' name='Phone'>
-          <size maxheight='1250' minheight='1250' sizing-mode='vscroll' />
+          <size maxheight='700' minheight='700' sizing-mode='vscroll' />
           <zones>
-            <zone h='100000' id='21' type-v2='layout-basic' w='100000' x='0' y='0'>
-              <zone h='99000' id='20' param='vert' type-v2='layout-flow' w='99000' x='500' y='500'>
+            <zone h='100000' id='25' type-v2='layout-basic' w='100000' x='0' y='0'>
+              <zone h='99000' id='24' param='vert' type-v2='layout-flow' w='99000' x='500' y='500'>
                 <zone fixed-size='167' h='10438' id='5' is-centered='0' is-fixed='true' is-scaled='1' param='C:/Users/pedro/Downloads/aviao.jpg' type-v2='bitmap' w='18875' x='37313' y='-875'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
@@ -31440,63 +31369,6 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='138' h='8625' id='16' is-fixed='true' name='kpi country DEC' w='13500' x='12875' y='10125'>
-                  <zone-style>
-                    <format attr='border-color' value='#000000' />
-                    <format attr='border-style' value='none' />
-                    <format attr='border-width' value='0' />
-                    <format attr='margin' value='4' />
-                    <format attr='padding' value='0' />
-                  </zone-style>
-                </zone>
-                <zone h='1875' id='19' type-v2='text' w='11688' x='-63' y='10375'>
-                  <formatted-text>
-                    <run fontcolor='#ffffff' fontname='Tableau Semibold' fontsize='12'>Total number of crashes</run>
-                  </formatted-text>
-                  <zone-style>
-                    <format attr='border-color' value='#000000' />
-                    <format attr='border-style' value='none' />
-                    <format attr='border-width' value='0' />
-                    <format attr='margin' value='4' />
-                    <format attr='padding' value='0' />
-                  </zone-style>
-                </zone>
-                <zone fixed-size='72' h='4500' id='12' is-fixed='true' name='kpi crash x time DEC' w='3938' x='2375' y='12938'>
-                  <zone-style>
-                    <format attr='border-color' value='#000000' />
-                    <format attr='border-style' value='none' />
-                    <format attr='border-width' value='0' />
-                    <format attr='margin' value='4' />
-                    <format attr='padding' value='0' />
-                  </zone-style>
-                </zone>
-                <zone fixed-size='280' h='30438' id='18' is-fixed='true' name='Crashes X Operators DEC' w='25563' x='41500' y='22250'>
-                  <zone-style>
-                    <format attr='border-color' value='#000000' />
-                    <format attr='border-style' value='none' />
-                    <format attr='border-width' value='0' />
-                    <format attr='margin' value='4' />
-                    <format attr='padding' value='0' />
-                  </zone-style>
-                </zone>
-                <zone fixed-size='280' h='29688' id='13' is-fixed='true' name='Crashes couses DEC' w='30313' x='125' y='22500'>
-                  <zone-style>
-                    <format attr='border-color' value='#000000' />
-                    <format attr='border-style' value='none' />
-                    <format attr='border-width' value='0' />
-                    <format attr='margin' value='4' />
-                    <format attr='padding' value='0' />
-                  </zone-style>
-                </zone>
-                <zone count='2' h='6625' id='15' looped='1' name='Crashes couses DEC' name1='kpi country DEC' name2='Crashes X Operators DEC' synchronized='1' type-v2='currpage' w='12500' x='53375' y='2063'>
-                  <zone-style>
-                    <format attr='border-color' value='#000000' />
-                    <format attr='border-style' value='none' />
-                    <format attr='border-width' value='0' />
-                    <format attr='margin' value='4' />
-                    <format attr='padding' value='0' />
-                  </zone-style>
-                </zone>
               </zone>
               <zone-style>
                 <format attr='border-color' value='#000000' />
@@ -31508,9 +31380,9 @@
           </zones>
         </devicelayout>
       </devicelayouts>
-      <simple-id uuid='{907FA221-42A8-4B3B-B200-37F938B9349D}' />
+      <simple-id uuid='{CF183A67-6811-475C-9BE8-69B35BABB982}' />
     </dashboard>
-    <dashboard _.fcp.AccessibleZoneTabOrder.true...enable-sort-zone-taborder='true' name='razao'>
+    <dashboard _.fcp.AccessibleZoneTabOrder.true...enable-sort-zone-taborder='true' name='Ratios'>
       <style>
         <style-rule element='table'>
           <format attr='background-color' value='#000000' />
@@ -31706,43 +31578,6 @@
       </viewpoint>
       <simple-id uuid='{48119BE2-5922-4337-BD41-D67227AF0139}' />
     </window>
-    <window class='worksheet' name='Crashes X Operators DEC'>
-      <cards>
-        <edge name='left'>
-          <strip size='160'>
-            <card type='pages' />
-            <card type='filters' />
-            <card type='marks' />
-          </strip>
-        </edge>
-        <edge name='top'>
-          <strip size='2147483647'>
-            <card type='columns' />
-          </strip>
-          <strip size='2147483647'>
-            <card type='rows' />
-          </strip>
-          <strip size='31'>
-            <card type='title' />
-          </strip>
-        </edge>
-        <edge name='right'>
-          <strip size='170'>
-            <card type='currpage' />
-            <card pane-specification-id='0' param='[federated.13ahx640xkange1eypzwl087xkpe].[usr:Calculation_771241462982684674:qk:3]' type='color' />
-          </strip>
-        </edge>
-      </cards>
-      <viewpoint>
-        <current-page>
-          <multibucket>
-            <bucket>202</bucket>
-          </multibucket>
-        </current-page>
-        <zoom type='fit-width' />
-      </viewpoint>
-      <simple-id uuid='{A96BE052-60BC-4571-AABF-13EC587CE15D}' />
-    </window>
     <window class='worksheet' name='Crashes X Aircraft'>
       <cards>
         <edge name='left'>
@@ -31851,42 +31686,6 @@
       </viewpoint>
       <simple-id uuid='{ACA623C8-8F7B-463A-A8D6-610C3D990D14}' />
     </window>
-    <window class='worksheet' name='Crashes couses DEC'>
-      <cards>
-        <edge name='left'>
-          <strip size='160'>
-            <card type='pages' />
-            <card type='filters' />
-            <card type='marks' />
-          </strip>
-        </edge>
-        <edge name='top'>
-          <strip size='2147483647'>
-            <card type='columns' />
-          </strip>
-          <strip size='2147483647'>
-            <card type='rows' />
-          </strip>
-          <strip size='31'>
-            <card type='title' />
-          </strip>
-        </edge>
-        <edge name='right'>
-          <strip size='170'>
-            <card type='currpage' />
-            <card pane-specification-id='0' param='[federated.13ahx640xkange1eypzwl087xkpe].[usr:Calculation_771241462982684674:qk:3]' type='color' />
-          </strip>
-        </edge>
-      </cards>
-      <viewpoint>
-        <current-page>
-          <multibucket>
-            <bucket>202</bucket>
-          </multibucket>
-        </current-page>
-      </viewpoint>
-      <simple-id uuid='{BE13F4E7-5E1C-4373-97EC-C99C523C01F0}' />
-    </window>
     <window class='worksheet' name='kpi biggest crash'>
       <cards>
         <edge name='left'>
@@ -31937,34 +31736,6 @@
         </edge>
       </cards>
       <simple-id uuid='{8E470D05-9EB9-4EAD-873F-2E5CB5F09596}' />
-    </window>
-    <window class='worksheet' name='kpi crash x time DEC'>
-      <cards>
-        <edge name='left'>
-          <strip size='160'>
-            <card type='pages' />
-            <card type='filters' />
-            <card type='marks' />
-          </strip>
-          <strip size='170'>
-            <card type='title' />
-          </strip>
-        </edge>
-        <edge name='top'>
-          <strip size='2147483647'>
-            <card type='columns' />
-          </strip>
-          <strip size='2147483647'>
-            <card type='rows' />
-          </strip>
-        </edge>
-        <edge name='right'>
-          <strip size='170'>
-            <card type='currpage' />
-          </strip>
-        </edge>
-      </cards>
-      <simple-id uuid='{7B375952-3012-44CA-88F0-EFA5EA33CF1E}' />
     </window>
     <window class='worksheet' name='kpi country'>
       <cards>
@@ -32024,7 +31795,7 @@
         </edge>
         <edge name='right'>
           <strip size='170'>
-            <card type='currpage' />
+            <card looped='1' type='currpage' />
             <card pane-specification-id='1' param='[federated.13ahx640xkange1eypzwl087xkpe].[usr:Ranking (cópia)_771241463004909580:qk]' type='size' />
           </strip>
         </edge>
@@ -32032,7 +31803,7 @@
       <viewpoint>
         <current-page>
           <multibucket>
-            <bucket>201</bucket>
+            <bucket>202</bucket>
           </multibucket>
         </current-page>
       </viewpoint>
@@ -32068,13 +31839,13 @@
       <viewpoint>
         <current-page>
           <multibucket>
-            <bucket>201</bucket>
+            <bucket>202</bucket>
           </multibucket>
         </current-page>
       </viewpoint>
       <simple-id uuid='{F0F1DE79-474E-42E6-9C3A-1D321959C7AE}' />
     </window>
-    <window class='worksheet' name='quedas filtrada'>
+    <window class='worksheet' maximized='true' name='quedas filtrada'>
       <cards>
         <edge name='left'>
           <strip size='160'>
@@ -32096,7 +31867,7 @@
         </edge>
         <edge name='right'>
           <strip size='170'>
-            <card type='currpage' />
+            <card mode='compact' param='[Parameters].[Parâmetro Year]' type='parameter' />
           </strip>
         </edge>
       </cards>
@@ -32109,12 +31880,12 @@
       </viewpoint>
       <simple-id uuid='{FF5E08CE-D42B-4771-B698-C65B268C3404}' />
     </window>
-    <window class='dashboard' name='Geral'>
+    <window class='dashboard' name='General'>
       <viewpoints>
         <viewpoint name='Crashes X Operators'>
           <current-page>
             <multibucket>
-              <bucket>201</bucket>
+              <bucket>196</bucket>
             </multibucket>
           </current-page>
           <zoom type='fit-width' />
@@ -32122,14 +31893,14 @@
         <viewpoint name='Crashes couses'>
           <current-page>
             <multibucket>
-              <bucket>201</bucket>
+              <bucket>196</bucket>
             </multibucket>
           </current-page>
         </viewpoint>
         <viewpoint name='Total Crashes '>
           <current-page>
             <multibucket>
-              <bucket>201</bucket>
+              <bucket>196</bucket>
             </multibucket>
           </current-page>
           <zoom type='entire-view' />
@@ -32138,49 +31909,22 @@
         <viewpoint name='kpi country'>
           <current-page>
             <multibucket>
-              <bucket>201</bucket>
+              <bucket>196</bucket>
             </multibucket>
           </current-page>
         </viewpoint>
         <viewpoint name='kpi crash x time'>
           <current-page>
             <multibucket>
-              <bucket>201</bucket>
+              <bucket>196</bucket>
             </multibucket>
           </current-page>
         </viewpoint>
       </viewpoints>
-      <active id='13' />
+      <active id='-1' />
       <simple-id uuid='{6342FABF-8A4A-453A-BB71-F721FF988A91}' />
     </window>
-    <window class='dashboard' maximized='true' name='Last 3 decades'>
-      <viewpoints>
-        <viewpoint name='Crashes X Operators DEC'>
-          <current-page>
-            <multibucket>
-              <bucket>202</bucket>
-            </multibucket>
-          </current-page>
-          <zoom type='fit-width' />
-        </viewpoint>
-        <viewpoint name='Crashes couses DEC'>
-          <current-page>
-            <multibucket>
-              <bucket>202</bucket>
-            </multibucket>
-          </current-page>
-        </viewpoint>
-        <viewpoint name='kpi crash x time DEC' />
-      </viewpoints>
-      <active id='-1' />
-      <simple-id uuid='{453E61AA-4260-42ED-907D-B31976451297}' />
-    </window>
-    <window class='dashboard' name='razao'>
-      <viewpoints />
-      <active id='-1' />
-      <simple-id uuid='{66A0E0D0-4433-4C36-8591-2A428EFDCE0C}' />
-    </window>
-    <window class='dashboard' name='ML'>
+    <window class='dashboard' name='Last 3 decades'>
       <viewpoints>
         <viewpoint name='Crashes X Operators DEC'>
           <current-page>
@@ -32204,10 +31948,134 @@
             </multibucket>
           </current-page>
         </viewpoint>
-        <viewpoint name='kpi crash x time DEC' />
+        <viewpoint name='kpi crash x time DEC'>
+          <current-page>
+            <multibucket>
+              <bucket>201</bucket>
+            </multibucket>
+          </current-page>
+        </viewpoint>
       </viewpoints>
-      <active id='15' />
-      <simple-id uuid='{23B83EA7-E3CC-4AE9-A6F4-989647E541AA}' />
+      <active id='29' />
+      <simple-id uuid='{453E61AA-4260-42ED-907D-B31976451297}' />
+    </window>
+    <window class='worksheet' name='kpi crash x time DEC'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+          <strip size='170'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='170'>
+            <card looped='1' type='currpage' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <current-page>
+          <multibucket>
+            <bucket>202</bucket>
+          </multibucket>
+        </current-page>
+      </viewpoint>
+      <simple-id uuid='{7B375952-3012-44CA-88F0-EFA5EA33CF1E}' />
+    </window>
+    <window class='worksheet' name='Crashes couses DEC'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='170'>
+            <card pane-specification-id='0' param='[federated.13ahx640xkange1eypzwl087xkpe].[usr:Calculation_771241462982684674:qk:3]' type='color' />
+            <card type='currpage' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <current-page>
+          <multibucket>
+            <bucket>202</bucket>
+          </multibucket>
+        </current-page>
+      </viewpoint>
+      <simple-id uuid='{BE13F4E7-5E1C-4373-97EC-C99C523C01F0}' />
+    </window>
+    <window class='worksheet' name='Crashes X Operators DEC'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='170'>
+            <card type='currpage' />
+            <card pane-specification-id='0' param='[federated.13ahx640xkange1eypzwl087xkpe].[usr:Calculation_771241462982684674:qk:3]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <current-page>
+          <multibucket>
+            <bucket>202</bucket>
+          </multibucket>
+        </current-page>
+        <zoom type='fit-width' />
+      </viewpoint>
+      <simple-id uuid='{A96BE052-60BC-4571-AABF-13EC587CE15D}' />
+    </window>
+    <window class='dashboard' name='Ratios'>
+      <viewpoints />
+      <active id='21' />
+      <simple-id uuid='{66A0E0D0-4433-4C36-8591-2A428EFDCE0C}' />
+    </window>
+    <window class='dashboard' name='ML'>
+      <viewpoints />
+      <active id='21' />
+      <simple-id uuid='{C56A921C-18B2-452D-A17F-69F76BC6D04E}' />
     </window>
   </windows>
 </workbook>
