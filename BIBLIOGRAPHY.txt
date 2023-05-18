@@ -1,7 +1,16 @@
 
+https://data.worldbank.org/indicator/IS.AIR.DPRT?end=2021&most_recent_value_desc=true&start=1970&view=chart
 
 https://www.kaggle.com/datasets/abeperez/historical-plane-crash-data
 
 https://www.faa.gov/
+
+https://pt.wikipedia.org/wiki/Mitsubishi_MU-2
+
+https://pt.wikipedia.org/wiki/Airbus_A320
+
+https://pt.wikipedia.org/wiki/Cessna_208
+
+https://pt.wikipedia.org/wiki/Grumman_E-2
 
 
