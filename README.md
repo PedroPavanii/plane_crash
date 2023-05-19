@@ -4,7 +4,9 @@
 
 # Project objective:
 ### I carried out the analysis of a dataset that contained data on air accidents from 1918 to 2022. I proposed a decrease or even the end of the fear of flying through the understanding of statistical data.
-Link with presentation: 
+
+Link with presentation: https://public.tableau.com/app/profile/pedro.machado5374/viz/crashes_16845101625200/Last3decades?publish=yes
+
 (The data bibliography is in a.txt file in the GitHub docs.)
 
 ## Methods:
@@ -33,4 +35,5 @@ The analysis of aviation accidents revealed an increase in incidents during the 
 I would like to thank the support of the following people: Raiana Rocha, Rayan Chianelli, Wallace Rocha, Mayumi Kobayashi, Carlos Reis and Sergio Nicolau who facilitated my learning process. Thank you very much!!!!!
 
 I hope I helped someone with this project as many people helped me! Hugs to you who read!
- 
+
+My Linkedin: https://www.linkedin.com/in/pedro-pavani-684753178/
